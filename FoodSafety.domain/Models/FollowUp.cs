@@ -11,7 +11,7 @@ namespace FoodSafety.domain.Models
         public int InspectionId { get; set; }
 
         [ForeignKey("InspectionId")]
-        public Inspection Inspection { get; set; }
+        public Inspection? Inspection { get; set; }
 
         public DateTime DueDate { get; set; }
 

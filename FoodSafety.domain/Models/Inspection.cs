@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+
 namespace FoodSafety.domain.Models
 {
     public class Inspection
@@ -14,7 +15,7 @@ namespace FoodSafety.domain.Models
         public int PremisesId { get; set; }
 
         [ForeignKey("PremisesId")]
-        public Premises Premises { get; set; }
+        public Premises? Premises { get; set; }
 
       
         public DateTime InspectionDate { get; set; }

@@ -1,0 +1,31 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<h2>Dashboard</h2>
+
+<form method="get">
+    <select name="town">
+        <option value="">All Towns</option>
+        @foreach (var t in ViewBag.Towns)
+        {
+            <option value="@t">@t</option>
+        }
+    </select>
+
+    <select name="riskRating">
+        <option value="">All Risk Levels</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select>
+
+    <button type="submit">Filter</button>
+</form>
+
+<div>
+    <h4>Inspections this month: @ViewBag.InspectionsThisMonth</h4>
+    <h4>Failed inspections this month: @ViewBag.FailedThisMonth</h4>
+    <h4>Overdue follow-ups: @ViewBag.OverdueFollowUps</h4>
+</div>
