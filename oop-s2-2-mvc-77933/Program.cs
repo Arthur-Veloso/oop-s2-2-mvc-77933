@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using oop_s2_2_mvc_77933.Data;
+using FoodSafety.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

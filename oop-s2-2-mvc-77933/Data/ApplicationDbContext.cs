@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using FoodSafety.domain.Enums;
+using FoodSafety.domain.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using oop_s2_2_mvc_77933.Enums;
-using oop_s2_2_mvc_77933.Models;
 
-namespace oop_s2_2_mvc_77933.Data
+namespace FoodSafety.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

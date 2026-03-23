@@ -1,5 +1,5 @@
 ﻿
-namespace oop_s2_2_mvc_77933.Enums
+namespace FoodSafety.domain.Enums
 {
     public enum RiskRating
     {

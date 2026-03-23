@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FoodSafety.domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using oop_s2_2_mvc_77933.Enums;
 
-namespace oop_s2_2_mvc_77933.Models
+namespace FoodSafety.domain.Models
 {
     public class Inspection
     {

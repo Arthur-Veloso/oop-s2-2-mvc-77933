@@ -1,8 +1,10 @@
-using System.Diagnostics;
+using FoodSafety.domain.Enums;
+using FoodSafety.domain.Models;
+using FoodSafety.mvc.Models;
 using Microsoft.AspNetCore.Mvc;
-using oop_s2_2_mvc_77933.Models;
+using System.Diagnostics;
 
-namespace oop_s2_2_mvc_77933.Controllers
+namespace FoodSafety.Controllers
 {
     public class HomeController : Controller
     {
