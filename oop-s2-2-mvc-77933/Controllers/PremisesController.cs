@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FoodSafety.Data;
 using FoodSafety.domain.Models;
 
-namespace oop_s2_2_mvc_77933.Controllers
+namespace FoodSafety.Controllers
 {
     public class PremisesController : Controller
     {

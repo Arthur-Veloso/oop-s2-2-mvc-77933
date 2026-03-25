@@ -4,20 +4,19 @@ using FoodSafety.domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace oop_s2_2_mvc_77933.Controllers
+namespace FoodSafety.Controllers
 {
     public class InspectionsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<InspectionsController> _logger;
 
-        public InspectionsController(ApplicationDbContext context)
+        public InspectionsController(ApplicationDbContext context, ILogger<InspectionsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Inspections
@@ -38,6 +37,7 @@ namespace oop_s2_2_mvc_77933.Controllers
             var inspection = await _context.Inspections
                 .Include(i => i.Premises)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (inspection == null)
             {
                 return NotFound();
@@ -54,26 +54,42 @@ namespace oop_s2_2_mvc_77933.Controllers
         }
 
         // POST: Inspections/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,PremisesId,InspectionDate,Score,Notes")] Inspection inspection)
         {
+            // Business logic
+            if (inspection.Score >= 60)
+            {
+                inspection.Outcome = Outcome.Pass;
+            }
+            else
+            {
+                inspection.Outcome = Outcome.Fail;
+                _logger.LogWarning("Low score inspection detected: {Score}", inspection.Score);
+            }
+
             if (ModelState.IsValid)
             {
-                if (inspection.Score >= 60)
+                try
                 {
-                    inspection.Outcome = Outcome.Pass;
+                    _context.Add(inspection);
+                    await _context.SaveChangesAsync();
+
+                    //  Log success
+                    _logger.LogInformation(
+                        "Inspection created successfully. PremisesId: {PremisesId}, Score: {Score}, Outcome: {Outcome}",
+                        inspection.PremisesId, inspection.Score, inspection.Outcome
+                    );
+
+                    return RedirectToAction(nameof(Index));
                 }
-                else
+                catch (Exception ex)
                 {
-                    inspection.Outcome = Outcome.Fail;
+                    _logger.LogError(ex, "Error saving inspection");
                 }
-                _context.Add(inspection);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
+
             ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address", inspection.PremisesId);
             return View(inspection);
         }
@@ -91,13 +107,12 @@ namespace oop_s2_2_mvc_77933.Controllers
             {
                 return NotFound();
             }
+
             ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address", inspection.PremisesId);
             return View(inspection);
         }
 
         // POST: Inspections/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,PremisesId,InspectionDate,Score,Outcome,Notes")] Inspection inspection)
@@ -113,6 +128,8 @@ namespace oop_s2_2_mvc_77933.Controllers
                 {
                     _context.Update(inspection);
                     await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Inspection updated: {Id}", inspection.Id);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,8 +142,10 @@ namespace oop_s2_2_mvc_77933.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address", inspection.PremisesId);
             return View(inspection);
         }
@@ -142,6 +161,7 @@ namespace oop_s2_2_mvc_77933.Controllers
             var inspection = await _context.Inspections
                 .Include(i => i.Premises)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (inspection == null)
             {
                 return NotFound();
@@ -156,9 +176,11 @@ namespace oop_s2_2_mvc_77933.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var inspection = await _context.Inspections.FindAsync(id);
+
             if (inspection != null)
             {
                 _context.Inspections.Remove(inspection);
+                _logger.LogInformation("Inspection deleted: {Id}", id);
             }
 
             await _context.SaveChangesAsync();
