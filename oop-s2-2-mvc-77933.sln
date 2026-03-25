@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodSafety.mvc", "oop-s2-2-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodSafety.domain", "FoodSafety.domain\FoodSafety.domain.csproj", "{809D585E-05BB-429B-A7A9-9D885EE0DFE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodSafety.Tests", "FoodSafety.Tests\FoodSafety.Tests.csproj", "{DE76A026-4768-41B4-B64F-FA8C258E1495}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{809D585E-05BB-429B-A7A9-9D885EE0DFE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{809D585E-05BB-429B-A7A9-9D885EE0DFE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{809D585E-05BB-429B-A7A9-9D885EE0DFE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE76A026-4768-41B4-B64F-FA8C258E1495}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE76A026-4768-41B4-B64F-FA8C258E1495}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE76A026-4768-41B4-B64F-FA8C258E1495}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE76A026-4768-41B4-B64F-FA8C258E1495}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
