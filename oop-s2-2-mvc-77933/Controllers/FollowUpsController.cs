@@ -1,13 +1,16 @@
 ﻿using FoodSafety.Data;
 using FoodSafety.domain.Enums;
 using FoodSafety.domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FoodSafety.Controllers
 {
+    [Authorize(Roles = "Admin,Inspector")]
     public class FollowUpsController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -5,23 +5,27 @@
 }
 <h2>Dashboard</h2>
 
-<form method="get">
-    <select name="town">
+<form method="get" class="mb-3 d-flex gap-2">
+
+    <select name="town" class="form-control">
         <option value="">All Towns</option>
         @foreach (var t in ViewBag.Towns)
         {
-            <option value="@t">@t</option>
+            <option value="@t" selected="@(t == ViewBag.SelectedTown)">
+                @t
+            </option>
         }
     </select>
 
-    <select name="riskRating">
+    <select name="riskRating" class="form-control">
         <option value="">All Risk Levels</option>
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
+        <option value="Low" selected="@(ViewBag.SelectedRisk?.ToString() == "Low")">Low</option>
+        <option value="Medium" selected="@(ViewBag.SelectedRisk?.ToString() == "Medium")">Medium</option>
+        <option value="High" selected="@(ViewBag.SelectedRisk?.ToString() == "High")">High</option>
     </select>
 
-    <button type="submit">Filter</button>
+    <button type="submit" class="btn btn-primary">Search</button>
+
 </form>
 
 <div>
