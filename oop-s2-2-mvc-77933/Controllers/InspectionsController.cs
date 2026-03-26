@@ -29,19 +29,19 @@ namespace FoodSafety.Controllers
                 .Include(i => i.Premises)
                 .AsQueryable();
 
-            // 🔽 Filter by premises
+            
             if (premisesId.HasValue)
             {
                 inspections = inspections.Where(i => i.PremisesId == premisesId);
             }
 
-            // 🔽 Filter by outcome
+            
             if (outcome.HasValue)
             {
                 inspections = inspections.Where(i => i.Outcome == outcome);
             }
 
-            // 🔽 Send premises list to view
+            
             ViewBag.Premises = new SelectList(_context.Premises, "Id", "Name");
 
             return View(await inspections.ToListAsync());
@@ -124,7 +124,7 @@ public async Task<IActionResult> Create([Bind("Id,PremisesId,InspectionDate,Scor
                 }
             }
 
-            // ✅ Log success
+            
             _logger.LogInformation(
                 "Inspection created successfully. PremisesId: {PremisesId}, Score: {Score}, Outcome: {Outcome}",
                 inspection.PremisesId, inspection.Score, inspection.Outcome

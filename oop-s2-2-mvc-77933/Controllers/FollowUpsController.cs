@@ -30,19 +30,19 @@ namespace FoodSafety.Controllers
                 .ThenInclude(i => i.Premises)
                 .AsQueryable();
 
-            // 🔽 Filter by premises (via inspection)
+            
             if (premisesId.HasValue)
             {
                 followUps = followUps.Where(f => f.Inspection.PremisesId == premisesId);
             }
 
-            // 🔽 Filter by status
+           
             if (status.HasValue)
             {
                 followUps = followUps.Where(f => f.Status == status);
             }
 
-            // 🔽 Filter overdue
+            
             if (overdue)
             {
                 followUps = followUps.Where(f =>
@@ -50,7 +50,7 @@ namespace FoodSafety.Controllers
                     f.DueDate < DateTime.Now);
             }
 
-            // 🔽 Send premises to dropdown
+           
             ViewBag.Premises = new SelectList(_context.Premises, "Id", "Name");
 
             return View(await followUps.ToListAsync());
@@ -86,7 +86,7 @@ namespace FoodSafety.Controllers
                 "Display"
             );
 
-            return View(); // ✅ THIS WAS MISSING
+            return View(); 
         }
 
         // POST: FollowUps/Create

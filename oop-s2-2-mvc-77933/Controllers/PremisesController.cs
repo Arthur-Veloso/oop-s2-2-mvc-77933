@@ -64,7 +64,7 @@ namespace FoodSafety.Controllers
         public async Task<IActionResult> Create([Bind("Id,Name,Address,Town")] Premises premises)
         {
             // Default risk
-            premises.RiskRating = RiskRating.Medium;
+            premises.RiskRating = RiskRating.Low;
 
             if (ModelState.IsValid)
             {
