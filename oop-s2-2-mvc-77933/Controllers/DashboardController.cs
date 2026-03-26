@@ -47,7 +47,26 @@ namespace FoodSafety.Controllers
                             i.Outcome == Outcome.Fail)
                 .CountAsync();
 
-            ViewBag.OverdueFollowUps = await _context.FollowUps
+            var overdueFollowUps = _context.FollowUps
+    .Include(f => f.Inspection)
+    .ThenInclude(i => i.Premises)
+    .AsQueryable();
+
+            // Apply SAME filters
+            if (!string.IsNullOrEmpty(town))
+            {
+                overdueFollowUps = overdueFollowUps
+                    .Where(f => f.Inspection.Premises.Town == town);
+            }
+
+            if (riskRating.HasValue)
+            {
+                overdueFollowUps = overdueFollowUps
+                    .Where(f => f.Inspection.Premises.RiskRating == riskRating);
+            }
+
+            // Final condition
+            ViewBag.OverdueFollowUps = await overdueFollowUps
                 .Where(f => f.Status == FollowUpStatus.Open && f.DueDate < now)
                 .CountAsync();
 
