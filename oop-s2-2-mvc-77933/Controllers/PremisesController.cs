@@ -1,5 +1,7 @@
 ﻿using FoodSafety.Data;
+using FoodSafety.domain.Enums;
 using FoodSafety.domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
 namespace FoodSafety.Controllers
 {
@@ -57,14 +58,18 @@ namespace FoodSafety.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,Town,RiskRating")] Premises premises)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,Town")] Premises premises)
         {
+            // Default risk
+            premises.RiskRating = RiskRating.Medium;
+
             if (ModelState.IsValid)
             {
                 _context.Add(premises);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(premises);
         }
 

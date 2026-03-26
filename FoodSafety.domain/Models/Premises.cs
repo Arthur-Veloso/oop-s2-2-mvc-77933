@@ -12,6 +12,6 @@ namespace FoodSafety.domain.Models
 
         public RiskRating RiskRating { get; set; }
 
-        public List<Inspection> Inspections { get; set; }
+        public ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
     }
 }

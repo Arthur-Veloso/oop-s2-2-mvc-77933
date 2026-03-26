@@ -52,50 +52,77 @@ namespace FoodSafety.Controllers
         // GET: Inspections/Create
         public IActionResult Create()
         {
-            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address");
+            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Name");
             return View();
         }
 
         // POST: Inspections/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PremisesId,InspectionDate,Score,Notes")] Inspection inspection)
-        {
-            // Business logic
-            if (inspection.Score >= 60)
-            {
-                inspection.Outcome = Outcome.Pass;
-            }
-            else
-            {
-                inspection.Outcome = Outcome.Fail;
-                _logger.LogWarning("Low score inspection detected: {Score}", inspection.Score);
-            }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create([Bind("Id,PremisesId,InspectionDate,Score,Notes")] Inspection inspection)
+{
+    // Business logic
+    if (inspection.Score >= 60)
+    {
+        inspection.Outcome = Outcome.Pass;
+    }
+    else
+    {
+        inspection.Outcome = Outcome.Fail;
+        _logger.LogWarning("Low score inspection detected: {Score}", inspection.Score);
+    }
 
-            if (ModelState.IsValid)
+    if (ModelState.IsValid)
+    {
+        try
+        {
+            //  Save inspection first
+            _context.Add(inspection);
+            await _context.SaveChangesAsync();
+
+            //  SAFER: calculate avg WITHOUT Include
+            var inspections = await _context.Inspections
+                .Where(i => i.PremisesId == inspection.PremisesId)
+                .ToListAsync();
+
+            if (inspections.Any())
             {
-                try
+                var avgScore = inspections.Average(i => i.Score);
+
+                var premises = await _context.Premises.FindAsync(inspection.PremisesId);
+
+                if (premises != null)
                 {
-                    _context.Add(inspection);
+                    if (avgScore < 50)
+                        premises.RiskRating = RiskRating.High;
+                    else if (avgScore < 70)
+                        premises.RiskRating = RiskRating.Medium;
+                    else
+                        premises.RiskRating = RiskRating.Low;
+
                     await _context.SaveChangesAsync();
 
-                    //  Log success
-                    _logger.LogInformation(
-                        "Inspection created successfully. PremisesId: {PremisesId}, Score: {Score}, Outcome: {Outcome}",
-                        inspection.PremisesId, inspection.Score, inspection.Outcome
-                    );
-
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error saving inspection");
+                    _logger.LogInformation("Premises {Id} risk updated to {Risk}", premises.Id, premises.RiskRating);
                 }
             }
 
-            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address", inspection.PremisesId);
-            return View(inspection);
+            // ✅ Log success
+            _logger.LogInformation(
+                "Inspection created successfully. PremisesId: {PremisesId}, Score: {Score}, Outcome: {Outcome}",
+                inspection.PremisesId, inspection.Score, inspection.Outcome
+            );
+
+            return RedirectToAction(nameof(Index));
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving inspection");
+        }
+    }
+
+    ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Name", inspection.PremisesId);
+    return View(inspection);
+}
 
         // GET: Inspections/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -111,18 +138,29 @@ namespace FoodSafety.Controllers
                 return NotFound();
             }
 
-            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address", inspection.PremisesId);
+            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Name", inspection.PremisesId);
             return View(inspection);
         }
 
         // POST: Inspections/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PremisesId,InspectionDate,Score,Outcome,Notes")] Inspection inspection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,PremisesId,InspectionDate,Score,Notes")] Inspection inspection)
         {
             if (id != inspection.Id)
             {
                 return NotFound();
+            }
+
+            //  Recalculate Outcome
+            if (inspection.Score >= 60)
+            {
+                inspection.Outcome = Outcome.Pass;
+            }
+            else
+            {
+                inspection.Outcome = Outcome.Fail;
+                _logger.LogWarning("Low score inspection detected on edit: {Score}", inspection.Score);
             }
 
             if (ModelState.IsValid)
@@ -132,7 +170,35 @@ namespace FoodSafety.Controllers
                     _context.Update(inspection);
                     await _context.SaveChangesAsync();
 
+                    //  Recalculate Risk
+                    var inspections = await _context.Inspections
+                        .Where(i => i.PremisesId == inspection.PremisesId)
+                        .ToListAsync();
+
+                    if (inspections.Any())
+                    {
+                        var avgScore = inspections.Average(i => i.Score);
+
+                        var premises = await _context.Premises.FindAsync(inspection.PremisesId);
+
+                        if (premises != null)
+                        {
+                            if (avgScore < 50)
+                                premises.RiskRating = RiskRating.High;
+                            else if (avgScore < 70)
+                                premises.RiskRating = RiskRating.Medium;
+                            else
+                                premises.RiskRating = RiskRating.Low;
+
+                            await _context.SaveChangesAsync();
+
+                            _logger.LogInformation("Premises {Id} risk updated after edit to {Risk}", premises.Id, premises.RiskRating);
+                        }
+                    }
+
                     _logger.LogInformation("Inspection updated: {Id}", inspection.Id);
+
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -145,11 +211,9 @@ namespace FoodSafety.Controllers
                         throw;
                     }
                 }
-
-                return RedirectToAction(nameof(Index));
             }
 
-            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Address", inspection.PremisesId);
+            ViewData["PremisesId"] = new SelectList(_context.Premises, "Id", "Name", inspection.PremisesId);
             return View(inspection);
         }
 
