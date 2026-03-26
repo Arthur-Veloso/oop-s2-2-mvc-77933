@@ -10,32 +10,93 @@
     <h4>Premises</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address)
         </dd>
-        <dt class = "col-sm-2">
+
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Town)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Town)
         </dd>
-        <dt class = "col-sm-2">
+
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.RiskRating)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.RiskRating)
         </dd>
     </dl>
 </div>
+
+<hr />
+
+<h4>Inspection Summary</h4>
+
+@if (Model.Inspections != null && Model.Inspections.Any())
+{
+    <p><strong>Total Inspections:</strong> @Model.Inspections.Count</p>
+
+    <p>
+        <span class="text-success">
+            Pass: @Model.Inspections.Count(i => i.Outcome == FoodSafety.domain.Enums.Outcome.Pass)
+        </span>
+    </p>
+
+    <p>
+        <span class="text-danger">
+            Fail: @Model.Inspections.Count(i => i.Outcome == FoodSafety.domain.Enums.Outcome.Fail)
+        </span>
+    </p>
+}
+else
+{
+    <p>No inspections yet.</p>
+}
+
+<hr />
+
+<h4>Follow-Ups</h4>
+
+@if (Model.Inspections != null && Model.Inspections.Any())
+{
+    var followUps = Model.Inspections
+        .SelectMany(i => i.FollowUps ?? new List<FoodSafety.domain.Models.FollowUp>());
+
+    if (followUps.Any())
+    {
+        var openFollowUps = followUps
+            .Count(f => f.Status == FoodSafety.domain.Enums.FollowUpStatus.Open);
+
+        <p>
+            <span class="text-warning">
+                Open Follow-Ups: @openFollowUps
+            </span>
+        </p>
+    }
+    else
+    {
+        <p>No follow-ups.</p>
+    }
+}
+else
+{
+    <p>No follow-ups.</p>
+}
+
+<hr />
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>

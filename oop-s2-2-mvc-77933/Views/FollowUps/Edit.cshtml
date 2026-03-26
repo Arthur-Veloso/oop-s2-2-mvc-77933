@@ -1,4 +1,5 @@
-﻿@model FoodSafety.domain.Models.FollowUp
+﻿@using FoodSafety.domain.Enums
+@model FoodSafety.domain.Models.FollowUp
 
 @{
     ViewData["Title"] = "Edit";
@@ -11,7 +12,7 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="InspectionId" class="control-label"></label>
@@ -25,7 +26,9 @@
             </div>
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
+                <select asp-for="Status" class="form-control"
+                        asp-items="Html.GetEnumSelectList<FollowUpStatus>()">
+                </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">

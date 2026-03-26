@@ -9,6 +9,34 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<form method="get" class="row g-2 mb-3">
+
+    <div class="col-md-4">
+        <select name="premisesId" class="form-control" asp-items="ViewBag.Premises">
+            <option value="">All Premises</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select name="status" class="form-control">
+            <option value="">All Status</option>
+            <option value="Open">Open</option>
+            <option value="Closed">Closed</option>
+        </select>
+    </div>
+
+    <div class="col-md-3 d-flex align-items-center">
+        <input type="checkbox" name="overdue" value="true" class="form-check-input me-2" />
+        <label class="form-check-label">Overdue Only</label>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -31,16 +59,18 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Inspection.Id)
+                    @Html.DisplayFor(modelItem => item.Inspection.Premises.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DueDate)
+                @item.DueDate.ToString("dd MMM yyyy")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ClosedDate)
+                @(item.ClosedDate.HasValue
+                               ? item.ClosedDate.Value.ToString("dd MMM yyyy")
+                                : "-")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

@@ -23,9 +23,36 @@ namespace FoodSafety.Controllers
         }
 
         // GET: FollowUps
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? premisesId, FollowUpStatus? status, bool overdue = false)
         {
-            var followUps = _context.FollowUps.Include(f => f.Inspection);
+            var followUps = _context.FollowUps
+                .Include(f => f.Inspection)
+                .ThenInclude(i => i.Premises)
+                .AsQueryable();
+
+            // 🔽 Filter by premises (via inspection)
+            if (premisesId.HasValue)
+            {
+                followUps = followUps.Where(f => f.Inspection.PremisesId == premisesId);
+            }
+
+            // 🔽 Filter by status
+            if (status.HasValue)
+            {
+                followUps = followUps.Where(f => f.Status == status);
+            }
+
+            // 🔽 Filter overdue
+            if (overdue)
+            {
+                followUps = followUps.Where(f =>
+                    f.Status == FollowUpStatus.Open &&
+                    f.DueDate < DateTime.Now);
+            }
+
+            // 🔽 Send premises to dropdown
+            ViewBag.Premises = new SelectList(_context.Premises, "Id", "Name");
+
             return View(await followUps.ToListAsync());
         }
 
@@ -36,6 +63,7 @@ namespace FoodSafety.Controllers
 
             var followUp = await _context.FollowUps
                 .Include(f => f.Inspection)
+                .ThenInclude(i => i.Premises)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (followUp == null) return NotFound();
@@ -46,8 +74,19 @@ namespace FoodSafety.Controllers
         // GET: FollowUps/Create
         public IActionResult Create()
         {
-            ViewData["InspectionId"] = new SelectList(_context.Inspections, "Id", "Id");
-            return View();
+            ViewData["InspectionId"] = new SelectList(
+                _context.Inspections
+                    .Include(i => i.Premises)
+                    .Select(i => new
+                    {
+                        i.Id,
+                        Display = i.Premises.Name + " (Inspection " + i.Id + ")"
+                    }),
+                "Id",
+                "Display"
+            );
+
+            return View(); // ✅ THIS WAS MISSING
         }
 
         // POST: FollowUps/Create
@@ -87,15 +126,30 @@ namespace FoodSafety.Controllers
         }
 
         // GET: FollowUps/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+       public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var followUp = await _context.FollowUps.FindAsync(id);
-            if (followUp == null) return NotFound();
+            var followUp = await _context.FollowUps
+                .Include(f => f.Inspection)
+                .ThenInclude(i => i.Premises)
+                .FirstOrDefaultAsync(f => f.Id == id);
 
-            ViewData["InspectionId"] = new SelectList(_context.Inspections, "Id", "Id", followUp.InspectionId);
-            return View(followUp);
+            if (followUp == null) return NotFound(); // ✅ important
+
+            ViewData["InspectionId"] = new SelectList(
+             _context.Inspections
+              .Include(i => i.Premises)
+              .Select(i => new {
+            i.Id,
+            Display = i.Premises.Name + " (Inspection " + i.Id + ")"
+            }),
+            "Id",
+            "Display",
+            followUp.InspectionId
+        );
+
+            return View(followUp); // ✅ THIS WAS MISSING
         }
 
         // POST: FollowUps/Edit/5
@@ -141,6 +195,7 @@ namespace FoodSafety.Controllers
 
             var followUp = await _context.FollowUps
                 .Include(f => f.Inspection)
+                .ThenInclude(i => i.Premises)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (followUp == null) return NotFound();

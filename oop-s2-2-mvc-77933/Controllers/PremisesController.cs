@@ -38,7 +38,10 @@ namespace FoodSafety.Controllers
             }
 
             var premises = await _context.Premises
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(p => p.Inspections)
+                    .ThenInclude(i => i.FollowUps)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (premises == null)
             {
                 return NotFound();

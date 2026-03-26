@@ -23,10 +23,28 @@ namespace FoodSafety.Controllers
         }
 
         // GET: Inspections
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? premisesId, Outcome? outcome)
         {
-            var applicationDbContext = _context.Inspections.Include(i => i.Premises);
-            return View(await applicationDbContext.ToListAsync());
+            var inspections = _context.Inspections
+                .Include(i => i.Premises)
+                .AsQueryable();
+
+            // 🔽 Filter by premises
+            if (premisesId.HasValue)
+            {
+                inspections = inspections.Where(i => i.PremisesId == premisesId);
+            }
+
+            // 🔽 Filter by outcome
+            if (outcome.HasValue)
+            {
+                inspections = inspections.Where(i => i.Outcome == outcome);
+            }
+
+            // 🔽 Send premises list to view
+            ViewBag.Premises = new SelectList(_context.Premises, "Id", "Name");
+
+            return View(await inspections.ToListAsync());
         }
 
         // GET: Inspections/Details/5
